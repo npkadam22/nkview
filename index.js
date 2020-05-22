@@ -5,21 +5,41 @@ const webpush = require('web-push')
 const mongoose = require('mongoose');
 const config = require('config');
 const Subs = require('./models/subs');
-
+const fetch = require("node-fetch");
 const db = config.get('mongoURI');
 
-const dummydata = {
+ var dummydata = {
   body: "Stay Home, Stay Safe",
   icon: "stay_home.png"
 }
-
+var count = 0;
 const cron = require('node-cron');
- 
-cron.schedule('0 */1 * * *', async() => {
-  const message = JSON.stringify(dummydata);
-  await sendNotificationWithData(message);
-  console.log('running a task every minute');
+
+
+cron.schedule('0 0 */2 * * *', async() => {
+  var newcount;
+  fetch("https://api.covid19india.org/data.json") // Call the fetch function passing the url of the API as a parameter
+  .then(function(data) {
+    return data.json();
+  })
+  .then(async data=>{
+    newcount = data.statewise[0].confirmed;
+    if (count!=newcount){
+      dummydata.body="Total Confirmed cases: "+newcount+ "\nTotal Recovered: "+data.statewise[0].recovered;
+      count = newcount;
+      const message = JSON.stringify(dummydata);
+      await sendNotificationWithData(message);
+      console.log('running a task every hour');
+    }
+  })
+  .catch(function(err) {
+    console.log(err);
+  });
+
+  
 });
+
+
 
 
 mongoose
@@ -87,7 +107,14 @@ const sendNotification = async(subscription, dataToSend) => {
     await webpush.sendNotification(subscription, dataToSend)
 
   }catch(err){
-    console.log(err);
+    if(err.body==='push subscription has unsubscribed or expired.\n');
+        {
+          var substr = JSON.stringify(subscription);
+          Subs.deleteOne({subscription : substr},function (err) {
+            if(err) console.log(err);
+            else console.log("Successful deletion");
+          });
+        }
   }
 }
 
@@ -99,7 +126,10 @@ const sendNotificationWithData = async(message)=>{
     });
     
     }catch(err){
-      console.log(err);
+      if(err.body==='push subscription has unsubscribed or expired.\n');
+        {
+          console.log('expired')
+        }
     }
 }
 
