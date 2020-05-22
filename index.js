@@ -15,6 +15,32 @@ const db = config.get('mongoURI');
 var count = 0;
 const cron = require('node-cron');
 
+const recoveryRate =(info)=>{
+  if(info){
+      const rate = (info.totalrecovered / info.totalconfirmed) * 100
+      return rate.toFixed(2);
+  }else{
+      return null;
+  }
+}
+
+cron.schedule('0 0 12 * * *', async() => {
+  fetch("https://api.covid19india.org/data.json") // Call the fetch function passing the url of the API as a parameter
+  .then(function(data) {
+    return data.json();
+  })
+  .then(async data=>{
+    dummydata.body=recoveryRate(data.cases_time_series.slice(-1)[0])+"% people got recovered till date.";
+    const message = JSON.stringify(dummydata);
+    await sendNotificationWithData(message);
+    console.log('running a task every hour');
+   
+  })
+  .catch(function(err) {
+    console.log(err);
+  });  
+});
+
 
 cron.schedule('0 0 8,16,20 * * *', async() => {
   var newcount;
@@ -34,9 +60,7 @@ cron.schedule('0 0 8,16,20 * * *', async() => {
   })
   .catch(function(err) {
     console.log(err);
-  });
-
-  
+  });  
 });
 
 
