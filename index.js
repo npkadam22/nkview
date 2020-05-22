@@ -15,7 +15,7 @@ const dummydata = {
 
 const cron = require('node-cron');
  
-cron.schedule('* * */1 * * *', async() => {
+cron.schedule('0 */1 * * *', async() => {
   const message = JSON.stringify(dummydata);
   await sendNotificationWithData(message);
   console.log('running a task every minute');
