@@ -8,6 +8,20 @@ const Subs = require('./models/subs');
 
 const db = config.get('mongoURI');
 
+const dummydata = {
+  body: "Stay Home, Stay Safe",
+  icon: "stay_home.png"
+}
+
+const cron = require('node-cron');
+ 
+cron.schedule('*/1 * * * *', async() => {
+  const message = JSON.stringify(dummydata);
+  await sendNotificationWithData(message);
+  console.log('running a task every minute');
+});
+
+
 mongoose
   .connect(db, { useNewUrlParser: true, useCreateIndex: true, useFindAndModify: false, useUnifiedTopology: true  })
   .then(() => console.log('MongoDB Connected...'))
@@ -96,5 +110,9 @@ app.get('/send-notification', async(req, res) => {
   res.json({ 'message': 'message sent m2' })
   
 })
+
+
+
+
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`))
