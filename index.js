@@ -16,7 +16,7 @@ var count = 0;
 const cron = require('node-cron');
 
 
-cron.schedule('0 0 */2 * * *', async() => {
+cron.schedule('0 0 8,16,20 * * *', async() => {
   var newcount;
   fetch("https://api.covid19india.org/data.json") // Call the fetch function passing the url of the API as a parameter
   .then(function(data) {
