@@ -18,6 +18,8 @@ const app = express()
 app.use(cors())
 app.use(bodyParser.json())
 
+
+
 const port = process.env.PORT ||4000;
 
 
@@ -25,7 +27,7 @@ const port = process.env.PORT ||4000;
 const dummyDb = { subscription: null } //dummy in memory store
 
 app.get('/', (req, res) => {
-  res.send('Hello World!'+dummyDb.subscription);
+  res.send('Hello World!');
 });
 
 const saveToDatabase =async (subscription) => {
@@ -38,7 +40,6 @@ const saveToDatabase =async (subscription) => {
   }catch(err){
     console.log(err)
   }
-  dummyDb.subscription = subscription
 }
 
 // The new /save-subscription endpoint
@@ -76,19 +77,23 @@ const sendNotification = async(subscription, dataToSend) => {
   }
 }
 
+const sendNotificationWithData = async(message)=>{
+  try{
+    const subarr = await Subs.find();
+    subarr.forEach(async sub=>{
+      await sendNotification(JSON.parse(sub.subscription), message)
+    });
+    
+    }catch(err){
+      console.log(err);
+    }
+}
+
 //route to test send notification
 app.get('/send-notification', async(req, res) => {
-  try{
-    const subscription = dummyDb.subscription //get subscription from your databse here.
-  const subarr = await Subs.find();
   const message = JSON.stringify(req.body);
-  subarr.forEach(async sub=>{
-    await sendNotification(JSON.parse(sub.subscription), message)
-  });
+  await sendNotificationWithData(message);
   res.json({ 'message': 'message sent m2' })
-  }catch(err){
-    console.log(err);
-  }
   
 })
 
