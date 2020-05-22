@@ -81,7 +81,7 @@ app.get('/send-notification', async(req, res) => {
   try{
     const subscription = dummyDb.subscription //get subscription from your databse here.
   const subarr = await Subs.find();
-  const message = "Stay home,Stay Safe";
+  const message = JSON.stringify(req.body);
   subarr.forEach(async sub=>{
     await sendNotification(JSON.parse(sub.subscription), message)
   });
