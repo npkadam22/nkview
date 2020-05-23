@@ -24,7 +24,7 @@ const recoveryRate =(info)=>{
   }
 }
 
-cron.schedule('0 24 8 * * *', async() => {
+cron.schedule('0 29 8 * * *', async() => {
   fetch("https://api.covid19india.org/data.json") // Call the fetch function passing the url of the API as a parameter
   .then(function(data) {
     return data.json();
@@ -39,6 +39,9 @@ cron.schedule('0 24 8 * * *', async() => {
   .catch(function(err) {
     console.log(err);
   });  
+}, {
+  scheduled: true,
+  timezone: "Asia/Kolkata"
 });
 
 
@@ -61,6 +64,9 @@ cron.schedule('0 18 8,16,20 * * *', async() => {
   .catch(function(err) {
     console.log(err);
   });  
+}, {
+  scheduled: true,
+  timezone: "Asia/Kolkata"
 });
 
 
