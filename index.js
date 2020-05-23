@@ -90,8 +90,9 @@ const port = process.env.PORT ||4000;
 
 const dummyDb = { subscription: null } //dummy in memory store
 
-app.get('/', (req, res) => {
-  res.send('Hello World!');
+app.get('/',async (req, res) => {
+  const count = await Subs.countDocuments({});
+  res.send('Total Subscribers : '+count);
 });
 
 const saveToDatabase =async (subscription) => {
